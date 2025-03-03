@@ -38,10 +38,6 @@ CREATE TABLE IF NOT EXISTS transaction_history (
 )
 """)
 
-
-
-
-
 def sign_up():
 
     print("***************Sign Up***************")
@@ -187,6 +183,23 @@ def log_in():
     time.sleep(2)
     operations_menu(user)
     
+def account_details(user):
+    account_number, full_name, _, _, balance = user
+
+    print(f"Welcome {full_name}...\n")
+
+    user = cursor.execute("""
+        SELECT account_number, full_name, balance
+        FROM customers
+        WHERE full_name = ?
+    """, (full_name,)).fetchone()
+
+    print(f"""
+Account number: {account_number}
+Full name: {full_name}
+Balance: #{balance}
+    """)
+
 
 def deposit(user):
 
@@ -237,7 +250,8 @@ def withdrawal(user):
             continue
 
         if withdrawal_amount > balance:
-            print(f"You can't withdraw more than {balance}!")
+            print(f"You can't withdraw more than #{balance}!")
+            continue
 
         current_balance = balance - withdrawal_amount 
         
@@ -388,7 +402,7 @@ def check_history(user):
         print(f"""
 Transaction type: {transaction_details[0]}
 Transaction amount: {transaction_details[1]}
-Balance: {transaction_details[2]}
+Balance: #{transaction_details[2]}
 Transaction time: {transaction_details[3]}\n\n
 """)
     
@@ -401,37 +415,42 @@ def operations_menu(user):
     while True:
         print(f"""********* Welcome, {full_name} *********** \n\n
             Choose the operation you want to perform today:
-            1. Deposit
-            2. Withdrawal
-            3. Transfer
-            4. Check Balance
-            5. Check Transaction History
-            6. Go back to main menu
+            1. Check Account details
+            2. Deposit
+            3. Withdrawal
+            4. Transfer
+            5. Check Balance
+            6. Check Transaction History
+            7. Go back to main menu
             
             """)
         
         user_choice = input("Select from the above options from 1 - 6: ")
 
-        if user_choice == "6":
+        if user_choice == "7":
             return main_menu
         
         elif user_choice == "1":
-            deposit(user)
+            account_details(user)
         
         elif user_choice == "2":
+            deposit(user)
+        
+        elif user_choice == "3":
             withdrawal(user)
 
-        elif user_choice == "3":
+        elif user_choice == "4":
             transfer(user)
         
-        elif user_choice == "4":
+        elif user_choice == "5":
             check_balance(user)
         
-        elif user_choice == "5":
+        elif user_choice == "6":
             check_history(user)
 
         user_choice = input("Press 0 to go back to operations menu: ")
         if user_choice == "0":
+            print("")
             continue
         else:
             print("You have entered a wrong input")
